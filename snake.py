@@ -28,10 +28,6 @@ def main():
 
     direction = 'RIGHT'
     move_to = direction
-    # move = True
-    # def snake_move():
-    #     if move:
-    #         snake_pos.x += 5
 
     def snake_move():
         if direction == 'UP':
@@ -43,6 +39,17 @@ def main():
         if direction == 'RIGHT':
             snake_pos[0] += 10
 
+
+    def ga_nabrak():
+        if move_to == 'UP' and direction != 'DOWN':
+            direction = 'UP'
+        if move_to == 'DOWN' and direction != 'UP':
+            direction = 'DOWN'
+        if move_to == 'LEFT' and direction != 'RIGHT':
+            direction = 'LEFT'
+        if move_to == 'RIGHT' and direction != 'LEFT':
+            direction = 'RIGHT'
+
     #APEL
     fruit = pygame.image.load("fruit.jpeg")
     fruit_rect = fruit.get_rect()
@@ -51,6 +58,13 @@ def main():
 
     #SCORE
     score = 0
+
+    def snake_eat():
+        if snake_pos[0] == fruit_position[0] and snake_pos[1] == fruit_position[1]:
+            score += 10
+            fruit_spawn = False
+        else:
+            snake_body.pop()
 
     def show_score(choice, color, font, size):
         score_font = pygame.font.SysFont(font, size)
@@ -66,28 +80,26 @@ def main():
         # if start:
         #     snake_move()
 
-        for every_event in pygame.event.get():
+        for event in pygame.event.get():
             # if every_event.type == pygame.QUIT:
             #     sys.quit()
-            if every_event.type == pygame.KEYDOWN:
-                if every_event.key == pygame.K_UP:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
                     move_to = 'UP'
-                if every_event.key == pygame.K_DOWN:
+                if event.key == pygame.K_DOWN:
                     move_to = 'DOWN'
-                if every_event.key == pygame.K_RIGHT:
-                    move_to = 'RIGHT'
-                if every_event.key == pygame.K_LEFT:
+                if event.key == pygame.K_LEFT:
                     move_to = 'LEFT'
+                if event.key == pygame.K_RIGHT:
+                    move_to = 'RIGHT'
+
 
         snake_body.insert(0, list(snake_pos))
-        if direction == 'UP':
-            snake_pos[1] -= 10
-        if direction == 'DOWN':
-            snake_pos[1] += 10
-        if direction == 'LEFT':
-            snake_pos[0] -= 10
-        if direction == 'RIGHT':
-            snake_pos[0] += 10
+
+        if start:
+            snake_move()
+            ga_nabrak()
+            snake_eat()
 
         if snake_pos[0] < 0 or snake_pos[0] > window_x-10:
             game_over()
@@ -96,7 +108,7 @@ def main():
 
         for pos in snake_body:
             pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(pos[0], pos[1], 10, 10))
-            pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(fruit_position[0], fruit_position[1], 10, 10))
+        pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(fruit_position[0], fruit_position[1], 10, 10))
 
         for block in snake_body[1:]:
             if snake_pos[0] == block[0] and snake_pos[1] == block[1]:
@@ -106,11 +118,6 @@ def main():
         if not fruit_spawn:
             fruit_position = [random.randrange(1, (500//10))*10, random.randrange(1, (500//10))*10]
 
-        if snake_pos[0] == fruit_position[0] and snake_pos[1] == fruit_position[1]:
-            score += 10
-            fruit_spawn = False
-        else:
-            snake_body.pop()
 
         pygame.display.update()
         fps.tick(snake_speed)
